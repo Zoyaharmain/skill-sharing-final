@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-
+import dashboardRoutes from "./routes/dashboard.routes.js";
 const app = express();
 
 app.use(
@@ -46,7 +46,7 @@ app.use("/api/exchange", exchangeRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/notifications", notificationRoutes);
-
+app.use("/api/dashboard", dashboardRoutes);
 // ================= HEALTH CHECK =================
 
 app.get("/test", (req, res) => {
