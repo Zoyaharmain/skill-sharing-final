@@ -1,12 +1,18 @@
 import { useEffect, useState } from "react";
 import API from "../api/axios";
+import { useNavigate } from "react-router-dom";
 
 function Dashboard() {
   const [sessions, setSessions] = useState([]);
+  const [dashboard, setDashboard] = useState({
+  skillsCount: 0,
+  sessionsCount: 0,
+  pendingCount: 0,
+  });
   const recentSessions = sessions.slice(0, 3);
   const [selectedSession, setSelectedSession] = useState(null);
   const [loading, setLoading] = useState(true);
-
+  const navigate = useNavigate();
   const fetchSessions = async () => {
     try {
       const res = await API.get("/sessions/my");
@@ -18,8 +24,18 @@ function Dashboard() {
     }
   };
 
+  const fetchDashboard = async () => {
+  try {
+    const res = await API.get("/dashboard");
+    setDashboard(res.data.data);
+  } catch (err) {
+    console.log("Dashboard error:", err);
+  }
+};
+
   useEffect(() => {
     fetchSessions();
+    fetchDashboard();
   }, []);
 
   if (loading) {
@@ -35,17 +51,17 @@ function Dashboard() {
         
         <div className="card p-5 rounded-xl shadow">
         <h2>My Skills</h2>
-        <p className="text-2xl font-bold text-blue-500">0</p>
+        <p className="text-2xl font-bold text-blue-500">{dashboard.skillsCount}</p>
         </div>
 
         <div className="card p-5 rounded-xl shadow">
         <h2>My Sessions</h2>
-        <p className="text-2xl font-bold text-purple-500">0</p>
+        <p className="text-2xl font-bold text-purple-500">{dashboard.sessionsCount}</p>
         </div>
 
         <div className="card p-5 rounded-xl shadow">
         <h2>Pending Requests</h2>
-        <p className="text-2xl font-bold text-blue-600">0</p>
+        <p className="text-2xl font-bold text-blue-600">{dashboard.pendingCount}</p>
         </div>
 
       </div>
@@ -57,13 +73,19 @@ function Dashboard() {
         <div className="grid grid-cols-3 gap-4">
 
          
-          <div className="p-4 bg-[var(--border)] rounded-lg">Update Profile</div>
+          <div className="p-4 bg-[var(--border)] rounded-lg cursor-pointer hover:opacity-80" onClick={() => navigate("/skills")}>
+           Update Profile
+          </div>
 
           
-          <div className="p-4 bg-[var(--border)] rounded-lg">Find Nearby</div>
+          <div className="p-4 bg-[var(--border)] rounded-lg cursor-pointer hover:opacity-80"  onClick={() => navigate("/nearby")}>
+            Find Nearby
+          </div>
 
        
-          <div className="p-4 bg-[var(--border)] rounded-lg">Book Session</div>
+          <div className="p-4 bg-[var(--border)] rounded-lg cursor-pointer hover:opacity-80" onClick={() => navigate("/manage-sessions")}>
+            Book Session
+          </div>
 
         </div>
       </div>

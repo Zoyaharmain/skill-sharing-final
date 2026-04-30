@@ -1,12 +1,15 @@
 import Skill from "../models/skill.models.js";
 import Session from "../models/session.models.js";
+import mongoose from "mongoose";
 
 export const getDashboard = async (req, res) => {
   try {
     const userId = req.user.id;
 
     // Count skills added by user
-    const skillsCount = await Skill.countDocuments({ user: userId });
+   const skillsCount = await Skill.countDocuments({
+       mentor: userId
+    });
 
     // Count all sessions (user is learner OR mentor)
     const sessionsCount = await Session.countDocuments({
