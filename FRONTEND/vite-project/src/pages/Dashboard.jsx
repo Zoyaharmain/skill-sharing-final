@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import API from "../api/axios";
 import { useNavigate } from "react-router-dom";
 
+
 function Dashboard() {
   const [sessions, setSessions] = useState([]);
   const [dashboard, setDashboard] = useState({
@@ -43,133 +44,123 @@ function Dashboard() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto bg-white border border-gray-200 rounded-2xl shadow-xl p-6">
-  {/* EVERYTHING inside dashboard */}
+    <div className="w-full p-4 sm:p-6">
 
-    <div className="bg-[var(--bg)] text-[var(--text)]"> {/* 🔥 ADDED */}
+    {/* DASHBOARD STATS */}
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
 
-      {/* DASHBOARD STATS */}
-      <div className="flex gap-6 mb-6">
-
-  <div className="flex-1 p-6 rounded-xl shadow-md bg-gradient-to-r from-blue-500 to-indigo-500 text-white hover:scale-[1.02] transition">
-    <h2 className="text-base font-medium opacity-90">My Skills</h2>
-<p className="text-2xl font-semibold mt-2">{dashboard.skillsCount}</p>
-  </div>
-
-  <div className="flex-1 p-6 rounded-xl shadow-md bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:scale-[1.02] transition">
-   <h2 className="text-base font-medium opacity-90">My Sessions</h2>
-<p className="text-2xl font-semibold mt-2">{dashboard.sessionsCount}</p>
-  </div>
-
-  <div className="flex-1 p-6 rounded-xl shadow-md bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:scale-[1.02] transition">
-    <h2 className="text-base font-medium opacity-90">Pending Requests</h2>
-    <p className="text-2xl font-semibold mt-2">{dashboard.pendingCount}</p>
-  </div>
-
-</div>
-        
-        {/* QUICK ACTIONS */}
-   {/* QUICK ACTIONS */}
-<div className="mt-8 p-6 rounded-2xl shadow-md bg-white border">
-
-  <h2 className="text-lg font-semibold mb-4 text-gray-700">
-    Quick Actions
-  </h2>
-
-  <div className="grid grid-cols-3 gap-6">
-
-    <button
-      onClick={() => navigate("/skills")}
-      className="p-5 rounded-xl bg-blue-50 text-blue-600 font-medium hover:bg-blue-100 transition shadow-sm text-base"
-    >
-      ✏️ Update Profile
-    </button>
-
-    <button
-      onClick={() => navigate("/nearby")}
-      className="p-5 rounded-xl bg-purple-50 text-purple-600 font-medium hover:bg-purple-100 transition shadow-sm text-base"
-    >
-      📍 Find Nearby
-    </button>
-
-    <button
-      onClick={() => navigate("/manage-sessions")}
-      className="p-5 rounded-xl bg-green-50 text-green-600 font-medium hover:bg-green-100 transition shadow-sm text-base"
-    >
-      📅 Book Session
-    </button>
-
-  </div>
-
-</div>
-
-      {/* MY SESSIONS */}
-      <div>
-      <div className="mt-10 mb-4">
-  <h2 className="text-2xl font-bold text-gray-900 tracking-wide">
-    MY SESSIONS
-  </h2>
-  <div className="w-22 h-1 bg-blue-500 mt-2 rounded"></div>
-</div>
-
-        {sessions.length > 0 ? (
-          <div className="grid grid-cols-3 gap-6">
-            {recentSessions.map(session => (
-              <div
-                key={session._id}
-                className="card p-5 rounded-xl shadow hover:shadow-lg transition" // 🔥 CHANGE
-              >
-                <h3 className="font-bold text-lg">
-                  {session.skill?.skillName || "No Skill"}
-                </h3>
-
-                
-                <p className="text-sm text-[var(--text)] opacity-70">
-                  Mentor: {session.mentor?.username || "Unknown"}
-                </p>
-
-                <p className="mt-2 text-sm">
-                  📅 {session.date ? new Date(session.date).toLocaleDateString() : "No Date"}
-                </p>
-
-                <p className="text-sm">⏰ {session.time || "No Time"}</p>
-
-                <p
-                  className={`mt-2 text-sm font-semibold 
-                  ${
-                    session.status === "Pending"
-                      ? "text-yellow-500"
-                      : session.status === "Accepted"
-                        ? "text-green-500"
-                        : session.status === "Completed"
-                          ? "text-blue-500"
-                          : "text-gray-500"
-                  }`}
-                >
-                  Status: {session.status}
-                </p>
-
-              </div>
-            ))}
-          </div>
-        ) : (
-          
-          <div className="card p-6 rounded-xl shadow text-center opacity-70">
-            No sessions booked yet 🚀
-          </div>
-        )}
+      <div className="flex-1 p-6 rounded-xl shadow-md bg-purple-500 text-white">
+        <h2 className="text-lg font-semibold">My Skills</h2>
+        <p className="text-3xl font-bold mt-2">{dashboard.skillsCount}</p>
       </div>
 
-      {/* REVIEW MODAL */}
-      {selectedSession && (
-        <ReviewModal
-          session={selectedSession}
-          onClose={() => setSelectedSession(null)}
-        />
+      <div className="flex-1 p-6 rounded-xl shadow-md bg-purple-500 text-white">
+        <h2 className="text-lg font-semibold">My Sessions</h2>
+        <p className="text-3xl font-bold mt-2">{dashboard.sessionsCount}</p>
+      </div>
+
+      <div className="flex-1 p-6 rounded-xl shadow-md bg-purple-500 text-white">
+        <h2 className="text-lg font-semibold">Pending Requests</h2>
+        <p className="text-3xl font-bold mt-2">{dashboard.pendingCount}</p>
+      </div>
+
+    </div>
+
+    {/* QUICK ACTIONS */}
+    
+      <div className="mt-8 border border-gray-600 rounded-xl p-5 bg-white shadow-sm">
+      <h2 className="text-lg font-semibold mb-4 text-gray-700">
+        Quick Actions
+      </h2>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        <button
+          onClick={() => navigate("/skills")}
+          className="p-5 rounded-xl bg-blue-100 text-blue-700 font-semibold hover:bg-blue-200 transition shadow-sm"
+        >
+          ✏️ Update Profile
+        </button>
+
+        <button
+          onClick={() => navigate("/nearby")}
+          className="p-5 rounded-xl bg-purple-100 text-purple-700 font-semibold hover:bg-purple-200 transition shadow-sm"
+        >
+          📍 Find Nearby
+        </button>
+
+        <button
+          onClick={() => navigate("/manage-sessions")}
+          className="p-5 rounded-xl bg-green-100 text-green-700 font-semibold hover:bg-green-200 transition shadow-sm"
+        >
+          📅 Book Session
+        </button>
+
+      </div>
+    </div>
+
+    {/* MY SESSIONS */}
+    <div className="mt-10">
+
+      <h2 className="text-2xl font-bold text-gray-900">
+        MY SESSIONS
+      </h2>
+      <div className="w-24 h-1 bg-blue-500 mt-2 rounded"></div>
+
+      {sessions.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+          {recentSessions.map(session => (
+            <div
+              key={session._id}
+              className="p-5 rounded-xl bg-white border border-gray-300 shadow-sm hover:shadow-lg transition duration-300"
+            >
+              <h3 className="font-bold text-lg">
+                {session.skill?.skillName || "No Skill"}
+              </h3>
+
+              <p className="text-sm opacity-70">
+                Mentor: {session.mentor?.username || "Unknown"}
+              </p>
+
+              <p className="mt-2 text-sm">
+                📅 {session.date ? new Date(session.date).toLocaleDateString() : "No Date"}
+              </p>
+
+              <p className="text-sm">⏰ {session.time || "No Time"}</p>
+
+              <p
+                className={`mt-2 text-sm font-semibold ${
+                  session.status === "Pending"
+                    ? "text-yellow-500"
+                    : session.status === "Accepted"
+                    ? "text-green-500"
+                    : "text-blue-500"
+                }`}
+              >
+                Status: {session.status}
+              </p>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="p-6 rounded-xl shadow text-center opacity-70 mt-6">
+          No sessions booked yet 🚀
+        </div>
       )}
+
     </div>
-    </div>
-  );
+     
+    {/* REVIEW MODAL */}
+    {selectedSession && (
+      <ReviewModal
+        session={selectedSession}
+        onClose={() => setSelectedSession(null)}
+      />
+    )}
+
+  </div>
+);
+  
 }
 
 export default Dashboard;

@@ -3,16 +3,16 @@ import Navbar from "./Navbar";
 
 function Layout({ children }) {
   return (
-    <div className="bg-[var(--bg)] text-[var(--text)]">
+    <div className="bg-[var(--bg)] text-[var(--text)] overflow-x-hidden">
       <Sidebar />
 
-      <div className="ml-60">
+     <div className="md:pl-60 w-full">
         <Navbar />
 
-        <div className="pt-20 px-6 h-screen overflow-y-auto">{children}</div>
+        <div className="pt-5 px-6 min-h-[calc(100vh-64px)] overflow-y-auto overflow-x-hidden">{children}</div>
       </div>
     </div>
   );
-}
+}  
 
 export default Layout;

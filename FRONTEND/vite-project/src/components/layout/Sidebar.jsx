@@ -2,6 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import L from "leaflet";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
+import { useState, useEffect } from "react";
 
 delete L.Icon.Default.prototype._getIconUrl;
 
@@ -28,11 +29,30 @@ const menu = [
 
 function Sidebar() {
   const location = useLocation();
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+  const handleOpen = () => setOpen(true);
+  document.addEventListener("openSidebar", handleOpen);
+
+  return () => {
+    document.removeEventListener("openSidebar", handleOpen);
+  };
+}, []);
 
   return (
-    <div className="fixed top-0 left-0 w-60 h-screen bg-[var(--card)] text-[var(--text)] border-r border-[var(--border)] shadow-lg p-4 overflow-y-auto">
+    <div
+  className={`fixed top-0 left-0 w-60 h-screen bg-[var(--card)] text-[var(--text)] border-r border-[var(--border)] shadow-lg p-4 overflow-y-auto z-50 transform ${
+    open ? "translate-x-0" : "-translate-x-full"
+  } transition-transform duration-300 md:translate-x-0`}
+>
       {/* Logo */}
       <h1 className="text-lg font-bold mb-6">NSSN</h1>
+      <button
+  className="md:hidden mb-4 px-2 py-1 bg-gray-200 rounded"
+  onClick={() => setOpen(false)}
+>
+  ✖
+</button>
 
       {menu.map(item => {
         const isActive =
