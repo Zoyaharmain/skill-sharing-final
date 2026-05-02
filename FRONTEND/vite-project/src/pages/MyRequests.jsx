@@ -70,7 +70,7 @@ function MyRequests() {
       </div>
 
     
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 
         {filteredRequests.length === 0 && (
        
@@ -81,7 +81,7 @@ function MyRequests() {
           <div
             key={session._id}
      
-            className="card p-4 rounded-xl hover:shadow-lg transition"
+            className="card p-4 rounded-xl shadow-md hover:shadow-lg transition w-full"
           >
             <div className="flex justify-between items-center">
               
@@ -108,8 +108,7 @@ function MyRequests() {
             </div>
 
            
-            <div className="mt-3 flex gap-2 flex-wrap">
-              
+            <div className="mt-3 flex flex-col sm:flex-row gap-2">
               {session.status === "Pending" && (
                 <button className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition">
                   Cancel

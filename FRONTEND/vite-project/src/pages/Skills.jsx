@@ -126,7 +126,7 @@ function Skills() {
   };
 
   return (
-    <div className="grid grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 
       <div className="card p-6 shadow-lg">
         <h2 className="text-xl font-bold mb-4 text-blue-600">Add Skill</h2>

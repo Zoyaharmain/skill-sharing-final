@@ -106,8 +106,7 @@ function Navbar() {
 
               <button onClick={() => setTheme("light")} className="block w-full text-left px-2 py-1 hover:bg-[var(--bg)] rounded text-sm">☀️ Light</button>
               <button onClick={() => setTheme("dark")} className="block w-full text-left px-2 py-1 hover:bg-[var(--bg)] rounded text-sm">🌙 Dark</button>
-              <button onClick={() => setTheme("dark-plus")} className="block w-full text-left px-2 py-1 hover:bg-[var(--bg)] rounded text-sm">🌑 Dark+</button>
-              <button onClick={() => setTheme("dark-pro")} className="block w-full text-left px-2 py-1 hover:bg-[var(--bg)] rounded text-sm">🖤 Dark++</button>
+
             </div>
           </div>
         )}

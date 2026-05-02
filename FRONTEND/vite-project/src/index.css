@@ -18,20 +18,7 @@
 }
 
 
-.dark-plus {
-  --bg: #030712;
-  --card: #111827;
-  --text: #e5e7eb;
-  --border: #1f2937;
-}
 
-
-.dark-pro {
-  --bg: #000000;
-  --card: #020617;
-  --text: #d1d5db;
-  --border: #111827;
-}
 
 
 
@@ -50,13 +37,7 @@ body {
   background-image: linear-gradient(to bottom right, #111827, #1f2937);
 }
 
-.dark-plus body {
-  background-image: linear-gradient(to bottom right, #020617, #111827);
-}
 
-.dark-pro body {
-  background: #000000;
-}
 
 
 
@@ -134,3 +115,4 @@ body {
   background: linear-gradient(to right, #3b82f6, #9333ea);
   color: white;
 }
+
