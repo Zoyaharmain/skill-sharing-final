@@ -24,7 +24,7 @@ const menu = [
   { name: "Exchange", path: "/exchange" },
   { name: "Calendar", path: "/calendar" },
 
-  { name: "💬 Chats", path: "/chat" },
+  { name: "Chats ", path: "/chat" },
 ];
 
 function Sidebar() {

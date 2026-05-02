@@ -197,15 +197,32 @@ console.log("CONVERSATION ID:", conversationId);
     <div className="flex flex-col h-full bg-[var(--bg)]">
       {/* HEADER */}
       {selectedUser && (
-        <div className="flex items-center gap-3 p-4 border-b bg-[var(--card)]">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white">
-            {selectedUser.username?.[0]?.toUpperCase()}
-          </div>
-          <div>
-            <p className="font-semibold">{selectedUser.username}</p>
-            <p className="text-xs text-gray-400">{typing ? "Typing..." : "Online"}</p>
-          </div>
-        </div>
+     <div className="flex items-center justify-between p-4 border-b bg-[var(--card)]">
+
+  {/* LEFT SIDE (avatar + name) */}
+  <div className="flex items-center gap-3">
+    <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white">
+      {selectedUser?.username?.[0]?.toUpperCase()}
+    </div>
+
+    <div>
+      <p className="font-semibold">{selectedUser?.username}</p>
+      <p className="text-xs text-gray-400">
+        {typing ? "Typing..." : "Online"}
+      </p>
+    </div>
+  </div>
+
+  {/* RIGHT SIDE (hamburger) */}
+  <button
+    onClick={() => window.dispatchEvent(new Event("openChats"))}
+    className="md:hidden p-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition"
+  >
+    ☰
+  </button>
+
+</div>
+
       )}
 
       {!selectedUser ? (

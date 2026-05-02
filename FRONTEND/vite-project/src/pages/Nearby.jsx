@@ -224,9 +224,9 @@ function Nearby() {
 }
 
   return (
-    <div className="flex h-[85vh] gap-4 p-4 bg-[var(--bg)] text-[var(--text)]">
+    <div className="flex flex-col lg:flex-row h-auto lg:h-[85vh] gap-4 p-4 bg-[var(--bg)] text-[var(--text)]">
       {/* LEFT PANEL */}
-      <div className="w-1/3 card p-4 overflow-y-auto rounded-2xl">
+      <div className="w-full lg:w-1/3 card p-4 overflow-y-auto rounded-2xl max-h-[300px] lg:max-h-full">
         <div className="flex flex-col gap-3 mb-4">
           <h2 className="text-xl font-bold text-blue-600">Nearby Skills</h2>
 
@@ -281,7 +281,7 @@ function Nearby() {
       </div>
 
       {/* MAP */}
-      <div className="w-2/3 h-full rounded-2xl overflow-hidden border border-[var(--border)] relative z-0">
+      <div className="w-full lg:w-2/3 h-[350px] lg:h-full rounded-2xl overflow-hidden border border-[var(--border)] relative z-0">
         <MapContainer
         key={position?.join(",")}
           center={position}

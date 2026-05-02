@@ -134,9 +134,9 @@ function Explore() {
       </div>
 
       {/* SKILLS GRID */}
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredSkills.length === 0 ? (
-          <p className="col-span-3 text-center opacity-60">
+          <p className="col-span-full text-center opacity-60">
             No skills found 😔
           </p>
         ) : (
@@ -187,7 +187,7 @@ function Explore() {
               </p>
 
               
-              <div className="flex gap-2 mt-3">
+              <div className="flex flex-col sm:flex-row gap-2 mt-3">
 
                 <button
                   onClick={() => setSelectedSkill(skill)}

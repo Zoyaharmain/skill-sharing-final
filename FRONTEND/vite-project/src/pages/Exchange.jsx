@@ -35,7 +35,7 @@ function Exchange() {
       <h2 className="text-xl font-bold mb-4">Exchange Requests</h2>
 
      
-      <div className="flex gap-4 mb-6">
+      <div className="flex flex-wrap gap-3 mb-6">
         <button
           onClick={() => setActiveTab("incoming")}
           className={`px-4 py-1 rounded ${
@@ -62,7 +62,7 @@ function Exchange() {
       {(activeTab === "incoming" ? incoming : outgoing).map((ex) => (
         <div
           key={ex._id}
-          className="card p-4 mb-4"
+          className="card p-5 mb-4 rounded-xl shadow-md hover:shadow-lg transition"
         >
           <p className="font-semibold">
             {activeTab === "incoming"
@@ -70,11 +70,11 @@ function Exchange() {
               : ex.receiver?.username}
           </p>
 
-          <p className="text-sm">
+          <p className="text-sm break-words">
             Learn: {ex.requestedSkill?.skillName}
           </p>
 
-          <p className="text-sm">
+          <p className="text-sm break-words">
             Offer: {ex.offeredSkill?.skillName}
           </p>
 
@@ -83,7 +83,7 @@ function Exchange() {
           </p>
 
           {activeTab === "incoming" && ex.status === "Pending" && (
-            <div className="flex gap-2 mt-2">
+            <div className="flex flex-col sm:flex-row gap-2 mt-3">
               <button
                 onClick={() => handleAction(ex._id, "Accepted")}
                 className="bg-green-500 text-white px-3 py-1 rounded"

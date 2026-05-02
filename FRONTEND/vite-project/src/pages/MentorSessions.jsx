@@ -109,7 +109,7 @@ function MentorSessions() {
       <h2 className="text-xl font-bold mb-4">Manage Sessions</h2>
 
     
-      <div className="flex gap-3 mb-4">
+      <div className="flex gap-3 mb-4 flex-wrap">
         {["All", "Pending", "Accepted", "Completed", "Rejected"].map(f => (
           <button
             key={f}
@@ -131,7 +131,7 @@ function MentorSessions() {
           No requests found 📭
         </div>
       ) : (
-        <div className="grid grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredSessions.map(session => (
             <div
               key={session._id}
@@ -177,7 +177,7 @@ function MentorSessions() {
               </div>
 
            
-              <div className="mt-4 flex gap-2 flex-wrap">
+              <div className="mt-4 flex flex-col sm:flex-row gap-2">
                 {session.status === "Pending" && (
                   <>
                     <button
