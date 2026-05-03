@@ -2,6 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import L from "leaflet";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
+import logo from "../../assets/logo.png";
 
 delete L.Icon.Default.prototype._getIconUrl;
 
@@ -32,7 +33,7 @@ function Sidebar() {
   return (
     <div className="fixed top-0 left-0 w-60 h-screen bg-[var(--card)] text-[var(--text)] border-r border-[var(--border)] shadow-lg p-4 overflow-y-auto">
       {/* Logo */}
-      <h1 className="text-lg font-bold mb-6">NSSN</h1>
+      <img src={logo} alt="logo" className="w-20 h-20 mx-auto mb-6" />
 
       {menu.map(item => {
         const isActive =
