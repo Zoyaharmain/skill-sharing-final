@@ -2,7 +2,6 @@ import { Link, useLocation } from "react-router-dom";
 import L from "leaflet";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
-import { useState, useEffect } from "react";
 
 delete L.Icon.Default.prototype._getIconUrl;
 
@@ -47,12 +46,6 @@ function Sidebar() {
 >
       {/* Logo */}
       <h1 className="text-lg font-bold mb-6">NSSN</h1>
-      <button
-  className="md:hidden mb-4 px-2 py-1 bg-gray-200 rounded"
-  onClick={() => setOpen(false)}
->
-  ✖
-</button>
 
       {menu.map(item => {
         const isActive =
