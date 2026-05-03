@@ -63,8 +63,7 @@ return (
   <div className="w-full h-full flex items-center justify-center">
 
     {!preview ? (
-  <div className="w-full h-full border-2 border-dashed border-gray-400 rounded-xl p-10 bg-gray-50 flex flex-col justify-start">
-
+  <div className="border-2 border-dashed rounded-lg p-6 w-full h-full flex flex-col items-center justify-center text-center">
     {/* ICON */}
     <div className="text-6xl text-gray-500 mb-6">
       🎥
@@ -120,7 +119,7 @@ return (
         {!loading && (
           <button
             onClick={handleRemove}
-            className="text-sm text-red-500 hover:underline self-start"
+            className=" mx-auto text-sm text-red-500 hover:underline self-start"
           >
             Remove video
           </button>

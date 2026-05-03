@@ -56,41 +56,54 @@ useEffect(() => {
   }, [id, conversations]);
 
   return (
-    <div className="flex h-[calc(100vh-70px)] bg-[var(--bg)] overflow-hidden">
+  <div className="flex h-[calc(100vh-70px)] bg-[var(--bg)] overflow-hidden">
 
-      {/* 🔹 MOBILE CHAT LIST (OVERLAY) */}
-      {openChats && (
-        <div className="fixed inset-0 z-50 bg-black/30 md:hidden">
-          <div className="w-[75%] h-full bg-[var(--bg)]">
-            <ChatSidebar
-              conversations={conversations}
-              selectedChat={selectedChat}
-              onSelectChat={(chat) => {
-                setSelectedChat(chat);
-                setOpenChats(false); // close after click
-              }}
-              user={user}
-            />
-          </div>
+    {/* 🔹 MOBILE CHAT LIST (OVERLAY) */}
+    {openChats && (
+      <div className="fixed inset-0 z-50 bg-black/30 md:hidden">
+        <div className="w-[75%] h-full bg-[var(--bg)]">
+          <ChatSidebar
+            conversations={conversations}
+            selectedChat={selectedChat}
+            onSelectChat={(chat) => {
+              setSelectedChat(chat);
+              setOpenChats(false);
+            }}
+            user={user}
+          />
+        </div>
+      </div>
+    )}
+
+    {/* 🔹 DESKTOP SIDEBAR */}
+    <div className="hidden md:block w-[25%] border-r border-[var(--border)]">
+      <ChatSidebar
+        conversations={conversations}
+        selectedChat={selectedChat}
+        onSelectChat={setSelectedChat}
+        user={user}
+      />
+    </div>
+
+    {/* 🔹 MAIN AREA */}
+    <div className="flex-1 flex flex-col">
+
+      {/* 🔥 MOBILE: show chat list when no chat selected */}
+      {!selectedChat && (
+        <div className="md:hidden flex-1">
+          <ChatSidebar
+            conversations={conversations}
+            selectedChat={selectedChat}
+            onSelectChat={(chat) => {
+              setSelectedChat(chat);
+            }}
+            user={user}
+          />
         </div>
       )}
 
-      {/* 🔹 DESKTOP SIDEBAR */}
-      <div className="hidden md:block w-[25%] border-r border-[var(--border)]">
-        <ChatSidebar
-          conversations={conversations}
-          selectedChat={selectedChat}
-          onSelectChat={setSelectedChat}
-          user={user}
-        />
-      </div>
-
-      {/* 🔹 CHAT WINDOW */}
-      <div className="flex-1 flex flex-col">
-
-        {/* 🔹 MOBILE HEADER */}
-        
-
+      {/* 🔥 CHAT WINDOW */}
+      {selectedChat && (
         <div className="flex-1 min-w-0">
           <ChatWindow
             key={selectedChat?._id}
@@ -99,10 +112,11 @@ useEffect(() => {
             onRefreshChats={() => setRefresh(prev => !prev)}
           />
         </div>
+      )}
 
-      </div>
     </div>
-  );
+  </div>
+);
 };
 
 export default ChatLayout;
