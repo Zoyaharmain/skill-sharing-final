@@ -1,36 +1,11 @@
 import { useEffect, useState, useRef } from "react";
 import { getSocket } from "../../socket/socket";
 import API from "../../api/axios";
-import MessageBubble from "./MessageBubble";
 import ChatInput from "./ChatInput";
 import TypingIndicator from "./TypingIndicator";
 
 const ChatWindow = ({ user, selectedChat, onRefreshChats }) => {
   const socket = getSocket();
-
-  //  GET OTHER USER
-  const selectedUser = (() => {
-    if (!selectedChat) return null;
-
-    //  Case 1: backend gives otherUser
-    if (selectedChat.otherUser?._id) {
-      return selectedChat.otherUser;
-    }
-
-    // Case 2: members array
-    if (selectedChat.members && user?._id) {
-      const other = selectedChat.members.find(m => {
-        const id = typeof m === "object" ? m._id : m;
-        return String(id) !== String(user._id);
-      });
-
-      if (other) {
-        return typeof other === "object" ? other : { _id: other, username: "User" };
-      }
-    }
-
-    return null;
-  })();
 
   const [messages, setMessages] = useState([]);
   const [typing, setTyping] = useState(false);
@@ -40,44 +15,43 @@ const ChatWindow = ({ user, selectedChat, onRefreshChats }) => {
   const scrollRef = useRef(null);
   const typingTimeoutRef = useRef(null);
 
-  
+  // 🔹 GET OTHER USER (stable reference)
+  const selectedUser = (() => {
+    if (!selectedChat) return null;
+
+    if (selectedChat.otherUser?._id) {
+      return selectedChat.otherUser;
+    }
+
+    if (selectedChat.members && user?._id) {
+      const other = selectedChat.members.find((m) => {
+        const id = typeof m === "object" ? m._id : m;
+        return String(id) !== String(user._id);
+      });
+
+      return typeof other === "object"
+        ? other
+        : { _id: other, username: "User" };
+    }
+
+    return null;
+  })();
+
+  // ================= LOAD MESSAGES =================
   useEffect(() => {
+    if (!selectedChat?._id) return;
+
     const loadChat = async () => {
-      if (!selectedChat?._id || !user?._id) {
-        return;
-      }
-
       setLoading(true);
-
       try {
-        const convId = selectedChat._id;
+        setConversationId(selectedChat._id);
 
-        setConversationId(convId);
+        const res = await API.get(`/chat/messages/${selectedChat._id}`);
+        const msgs = res.data?.data || res.data || [];
 
-        const msgRes = await API.get(`/chat/messages/${convId}`);
-
-        const msgs = msgRes.data?.data || msgRes.data || [];
-
-        const normalized = msgs.map(msg => {
-          let senderId;
-
-          if (msg.sender && typeof msg.sender === "object") {
-            senderId = msg.sender._id;
-          } else if (typeof msg.sender === "string") {
-            senderId = msg.sender;
-          } else if (msg.senderId) {
-            senderId = msg.senderId;
-          }
-
-          return {
-            ...msg,
-            senderId: String(senderId),
-          };
-        });
-
-        setMessages(normalized);
+        setMessages(msgs);
       } catch (err) {
-        console.error("❌ ERROR:", err);
+        console.error(err);
       } finally {
         setLoading(false);
       }
@@ -90,32 +64,46 @@ const ChatWindow = ({ user, selectedChat, onRefreshChats }) => {
       setConversationId(null);
       setTyping(false);
     };
-  }, [selectedChat?._id, user?._id]);
+  }, [selectedChat?._id]);
 
-  
+  // ================= SOCKET RECEIVE =================
   useEffect(() => {
     if (!conversationId || !socket) return;
 
-    const handleReceiveMessage = data => {
-      if (!data?.text) return;
+   const handleReceiveMessage = (data) => {
+  if (!data?.text) return;
+  if (String(data.conversationId) !== String(conversationId)) return;
 
-      if (String(data.conversationId) !== String(conversationId)) return;
+  const senderId = String(data.sender?._id || data.senderId || "");
 
-      setMessages(prev => {
-        const exists = prev.some(msg => msg._id === data._id);
-        if (exists) return prev;
-        return [...prev, data];
-      });
-    };
+  // 💣 HARD BLOCK: NEVER process own message
+  if (senderId === String(user?._id)) {
+    return;
+  }
 
+  setMessages((prev) => {
+    const exists = prev.some((m) => m._id === data._id);
+    if (exists) return prev;
+    return [...prev, data];
+  });
+
+  // 🔥 ONLY trigger refresh for OTHER USER messages
+  // 🔥 DELAYED SAFE NOTIFICATION TRIGGER
+setTimeout(() => {
+  const senderId = String(data.sender?._id || data.senderId || "");
+
+  // 💣 ONLY AFTER STABLE CHECK
+  if (senderId !== String(user?._id)) {
+    onRefreshChats?.();
+  }
+}, 0);
+};
     socket.on("getMessage", handleReceiveMessage);
 
-    return () => {
-      socket.off("getMessage", handleReceiveMessage);
-    };
+    return () => socket.off("getMessage", handleReceiveMessage);
   }, [conversationId, socket]);
 
-
+  // ================= TYPING =================
   useEffect(() => {
     if (!conversationId || !socket) return;
 
@@ -125,7 +113,6 @@ const ChatWindow = ({ user, selectedChat, onRefreshChats }) => {
       setTyping(true);
 
       clearTimeout(typingTimeoutRef.current);
-
       typingTimeoutRef.current = setTimeout(() => {
         setTyping(false);
       }, 1500);
@@ -139,15 +126,13 @@ const ChatWindow = ({ user, selectedChat, onRefreshChats }) => {
     };
   }, [selectedUser?._id, conversationId, socket]);
 
- 
+  // ================= AUTO SCROLL =================
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, typing]);
 
-
-  const handleSend = async text => {
-    console.log("TEXT:", text);
-console.log("CONVERSATION ID:", conversationId);
+  // ================= SEND =================
+  const handleSend = async (text) => {
     if (!text.trim() || !conversationId) return;
 
     const tempId = Date.now();
@@ -155,13 +140,13 @@ console.log("CONVERSATION ID:", conversationId);
     const tempMessage = {
       _id: tempId,
       text,
-      senderId: user._id,
+      sender: { _id: user?._id },
       conversationId,
       createdAt: new Date().toISOString(),
     };
 
     try {
-      setMessages(prev => [...prev, tempMessage]);
+      setMessages((prev) => [...prev, tempMessage]);
 
       const res = await API.post("/chat/message", {
         conversationId,
@@ -170,95 +155,78 @@ console.log("CONVERSATION ID:", conversationId);
 
       const saved = res.data?.data || res.data;
 
-      const savedMsg = {
-        ...saved,
-        senderId: saved.sender?._id || saved.sender,
-      };
-
-      setMessages(prev => prev.map(msg => (msg._id === tempId ? savedMsg : msg)));
+      setMessages((prev) =>
+        prev.map((m) => (m._id === tempId ? saved : m))
+      );
 
       socket.emit("sendMessage", {
-        ...savedMsg,
-        receiverId: selectedUser._id,
+        ...saved,
+        receiverId: selectedUser?._id,
         conversationId,
       });
-      if (onRefreshChats) {
-        onRefreshChats();
-      }
-      
-    } catch (err) {
-      console.error("Send message error:", err);
 
-      setMessages(prev => prev.filter(msg => msg._id !== tempId));
+      onRefreshChats?.();
+    } catch (err) {
+      console.error(err);
+      setMessages((prev) => prev.filter((m) => m._id !== tempId));
     }
   };
 
+  // ================= UI =================
   return (
-    <div className="flex flex-col h-full bg-[var(--bg)]">
+    <div className="flex flex-col h-full min-h-0 bg-[var(--bg)]">
+
       {/* HEADER */}
       {selectedUser && (
-     <div className="flex items-center justify-between p-4 border-b bg-[var(--card)]">
+        <div className="flex justify-between p-4 border-b bg-[var(--card)] shrink-0">
+          <div>{selectedUser.username}</div>
 
-  {/* LEFT SIDE (avatar + name) */}
-  <div className="flex items-center gap-3">
-    <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white">
-      {selectedUser?.username?.[0]?.toUpperCase()}
-    </div>
-
-    <div>
-      <p className="font-semibold">{selectedUser?.username}</p>
-      <p className="text-xs text-gray-400">
-        {typing ? "Typing..." : "Online"}
-      </p>
-    </div>
-  </div>
-
-  {/* RIGHT SIDE (hamburger) */}
-  <button
-    onClick={() => window.dispatchEvent(new Event("openChats"))}
-    className="md:hidden p-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition"
-  >
-    ☰
-  </button>
-
-</div>
-
+          <button
+            onClick={() => window.dispatchEvent(new Event("openChats"))}
+            className="md:hidden"
+          >
+            ☰
+          </button>
+        </div>
       )}
 
       {!selectedUser ? (
         <div className="flex flex-1 items-center justify-center text-gray-400">
-          Select a chat to start messaging 💬
+          Select a chat
         </div>
       ) : loading ? (
-        <div className="flex flex-1 items-center justify-center text-gray-400">
-          Loading messages...
+        <div className="flex flex-1 items-center justify-center">
+          Loading...
         </div>
       ) : (
         <>
+          {/* 🔥 SCROLL AREA */}
           <div className="flex-1 overflow-y-auto p-4 space-y-3">
-            {messages.map(msg => {
-              const isOwn = String(msg.senderId) === String(user._id);
+
+            {messages.map((msg) => {
+              // 💣 FINAL FIX: compare with selectedUser ONLY
+              const isOwn =
+                String(msg.sender?._id || msg.senderId) !==
+                String(selectedUser?._id);
 
               return (
-                <div key={msg._id} className={`flex ${isOwn ? "justify-end" : "justify-start"}`}>
+                <div
+                  key={msg._id}
+                  className={`flex ${
+                    isOwn ? "justify-end" : "justify-start"
+                  }`}
+                >
                   <div
                     className={`
-          max-w-[65%] px-4 py-2 rounded-2xl shadow-sm
-          ${
-            isOwn
-              ? "bg-blue-500 text-white rounded-br-none"
-              : "bg-gray-200 text-black rounded-bl-none"
-          }
-        `}
+                      max-w-[65%] px-4 py-2 rounded-2xl shadow-sm
+                      ${
+                        isOwn
+                          ? "bg-blue-500 text-white rounded-br-none"
+                          : "bg-gray-200 text-black rounded-bl-none"
+                      }
+                    `}
                   >
                     <p className="text-sm">{msg.text}</p>
-
-                    <p className="text-[10px] mt-1 opacity-70 text-right">
-                      {new Date(msg.createdAt).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </p>
                   </div>
                 </div>
               );
@@ -268,6 +236,7 @@ console.log("CONVERSATION ID:", conversationId);
             <div ref={scrollRef} />
           </div>
 
+          {/* INPUT */}
           <ChatInput onSend={handleSend} />
         </>
       )}

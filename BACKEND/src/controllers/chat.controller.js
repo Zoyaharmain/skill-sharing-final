@@ -37,13 +37,10 @@ export const getOrCreateConversation = asyncHandler(async (req, res) => {
       );
     } catch (err) {
       if (err.code === 11000) {
-        console.log("⚠️ Duplicate detected, fetching again");
-
         conversation = await Conversation.findOne({
           members: members,
         }).populate("members", "username email");
       } else {
-        console.error("❌ Create error:", err);
         throw new ApiError(500, "Conversation creation failed");
       }
     }
@@ -53,7 +50,9 @@ export const getOrCreateConversation = asyncHandler(async (req, res) => {
     throw new ApiError(500, "Conversation creation failed");
   }
 
-  return res.status(200).json(new ApiResponse(200, conversation, "Conversation ready"));
+  return res.status(200).json(
+    new ApiResponse(200, conversation, "Conversation ready")
+  );
 });
 
 export const sendMessage = asyncHandler(async (req, res) => {
@@ -75,18 +74,23 @@ export const sendMessage = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Conversation not found");
   }
 
-  const isMember = conversation.members.some(memberId => String(memberId) === String(req.user._id));
+  const isMember = conversation.members.some(
+    (memberId) => String(memberId) === String(req.user._id)
+  );
 
   if (!isMember) {
     throw new ApiError(403, "You are not part of this conversation");
   }
 
-  const receiverId = conversation.members.find(id => String(id) !== String(req.user._id));
+  const receiverId = conversation.members.find(
+    (id) => String(id) !== String(req.user._id)
+  );
 
   if (!receiverId) {
     throw new ApiError(400, "Receiver not found in conversation");
   }
 
+  // CREATE MESSAGE
   const message = await Message.create({
     conversationId,
     sender: req.user._id,
@@ -103,7 +107,6 @@ export const sendMessage = asyncHandler(async (req, res) => {
   };
 
   conversation.lastMessageAt = now;
-
   conversation.updatedAt = now;
 
   await conversation.save();
@@ -112,26 +115,44 @@ export const sendMessage = asyncHandler(async (req, res) => {
     .populate("sender", "username")
     .populate("receiver", "username");
 
+  // 🔥 FIXED SOCKET BLOCK (INSIDE TRY)
   try {
     const io = getIO();
 
     if (io) {
-      io.to(String(receiverId)).emit("receiveMessage", {
-        _id: populatedMessage._id,
-        senderId: populatedMessage.sender._id,
+      const socketPayload = {
+        _id: String(populatedMessage._id),
         text: populatedMessage.text,
-        conversationId: populatedMessage.conversationId,
+        sender: {
+          _id: String(populatedMessage.sender._id),
+          username: populatedMessage.sender.username,
+        },
+        conversationId: String(populatedMessage.conversationId),
         createdAt: populatedMessage.createdAt,
-      });
-      // io.to(String(req.user._id)).emit("getMessage", populatedMessage);
+      };
+
+      // ✅ SAME PAYLOAD FOR BOTH USERS
+      io.to(receiverId).emit("getMessage", socketPayload);
+      io.to(String(req.user._id)).emit("getMessage", socketPayload);
     }
-    //  Notify receiver
-    notifyNewMessage(receiverId, req.user.username, trimmedText, conversationId, io);
+
+   // 💣 FINAL SAFE NOTIFICATION FIX
+if (String(receiverId) !== String(req.user._id)) {
+  notifyNewMessage(
+    receiverId,
+    req.user.username,
+    trimmedText,
+    conversationId,
+    io
+  );
+}
   } catch (err) {
     console.log("Socket/Notification error:", err.message);
   }
 
-  return res.status(201).json(new ApiResponse(201, populatedMessage, "Message sent successfully"));
+  return res.status(201).json(
+    new ApiResponse(201, populatedMessage, "Message sent successfully")
+  );
 });
 
 export const getMessages = asyncHandler(async (req, res) => {
@@ -147,7 +168,11 @@ export const getMessages = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Conversation not found");
   }
 
-  if (!conversation.members.some(m => String(m) === String(req.user._id))) {
+  if (
+    !conversation.members.some(
+      (m) => String(m) === String(req.user._id)
+    )
+  ) {
     throw new ApiError(403, "You are not authorized to view messages");
   }
 
@@ -155,7 +180,9 @@ export const getMessages = asyncHandler(async (req, res) => {
     .populate("sender", "username")
     .sort({ createdAt: 1 });
 
-  return res.status(200).json(new ApiResponse(200, messages, "Messages fetched successfully"));
+  return res.status(200).json(
+    new ApiResponse(200, messages, "Messages fetched successfully")
+  );
 });
 
 export const getUserConversations = async (req, res) => {
@@ -169,8 +196,10 @@ export const getUserConversations = async (req, res) => {
       .populate("skill", "title")
       .sort({ updatedAt: -1 });
 
-    const formatted = conversations.map(conv => {
-      const otherUser = conv.members.find(m => String(m._id) !== String(userId));
+    const formatted = conversations.map((conv) => {
+      const otherUser = conv.members.find(
+        (m) => String(m._id) !== String(userId)
+      );
 
       return {
         _id: String(conv._id),
@@ -187,11 +216,13 @@ export const getUserConversations = async (req, res) => {
               avatar: null,
             },
 
-        lastMessage: conv.lastMessage || { text: "Start chatting..." },
+        lastMessage: conv.lastMessage || {
+          text: "Start chatting...",
+        },
 
         skill: conv.skill || null,
 
-        members: conv.members.map(m => String(m._id)),
+        members: conv.members.map((m) => String(m._id)),
 
         updatedAt: conv.updatedAt,
       };

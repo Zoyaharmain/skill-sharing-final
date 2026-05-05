@@ -86,7 +86,7 @@ useEffect(() => {
     </div>
 
     {/* 🔹 MAIN AREA */}
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col min-h-0">
 
       {/* 🔥 MOBILE: show chat list when no chat selected */}
       {!selectedChat && (
@@ -104,13 +104,13 @@ useEffect(() => {
 
       {/* 🔥 CHAT WINDOW */}
       {selectedChat && (
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 min-h-0">
           <ChatWindow
-            key={selectedChat?._id}
-            selectedChat={selectedChat}
-            user={user}
-            onRefreshChats={() => setRefresh(prev => !prev)}
-          />
+  key={`${user?._id || "nouser"}-${selectedChat?._id || "nochat"}`}
+  selectedChat={selectedChat}
+  user={user}
+  onRefreshChats={() => setRefresh(prev => !prev)}
+/>
         </div>
       )}
 
