@@ -1,5 +1,4 @@
 {
-<<<<<<< HEAD
   "name": "vite-project",
   "private": true,
   "version": "0.0.0",
@@ -40,17 +39,4 @@
     "tailwindcss": "^4.2.4",
     "vite": "^8.0.4"
   }
-=======
-   "scripts": {
-      "format": "prettier --write ."
-   },
-   "devDependencies": {
-      "prettier": "^3.8.2"
-   },
-   "dependencies": {
-      "dotenv": "^17.4.2",
-      "express": "^5.2.1",
-      "mongoose": "^9.6.1"
-   }
->>>>>>> 0bab2721f6c9e3723b60df47f392ce9b06ebf926
 }
