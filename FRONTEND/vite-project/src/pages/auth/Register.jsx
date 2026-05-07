@@ -6,8 +6,7 @@ import LocationAutocomplete from "../../components/LocationAutocomplete";
 function Register() {
   const navigate = useNavigate();
 
-
-  const [coordinates, setCoordinates] = useState(null); // ✅ KEEP ONLY ONE
+  const [coordinates, setCoordinates] = useState(null);
 
   const [form, setForm] = useState({
     username: "",
@@ -16,18 +15,15 @@ function Register() {
     location: "",
   });
 
-  //  HANDLE INPUT CHANGE
+  // Handle input changes
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
+    });
   };
 
-  /*
-  const handleLocationChange = (e) => {
-    setForm({ ...form, location: e.target.value });
-  };
-  */
-
-  //  USE GPS LOCATION
+  // Use current GPS location
   const handleUseLocation = () => {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
@@ -38,105 +34,134 @@ function Register() {
 
         setCoordinates(coords);
 
-        
         setForm((prev) => ({
           ...prev,
           location: "Current Location",
         }));
       },
       (err) => {
-        alert("Unable to fetch location");
         console.log(err);
+        alert("Unable to fetch location");
       }
     );
   };
 
-  //  SUBMIT FORM
+  // Submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    
+    if (!form.username || !form.email || !form.password) {
+      alert("Please fill all fields");
+      return;
+    }
+
     if (!coordinates && !form.location) {
-      alert("Please select location from suggestions or use current location");
+      alert("Please select a location");
       return;
     }
 
     try {
-      await API.post("/auth/register", {
+      const response = await API.post("/auth/register", {
         ...form,
         coordinates: coordinates
           ? {
               type: "Point",
-              coordinates: coordinates, // [lng, lat]
+              coordinates: coordinates,
             }
-          : undefined, // backend fallback
+          : undefined,
       });
 
+      console.log(response.data);
+
       alert("Registered Successfully");
+
       navigate("/login");
     } catch (err) {
-      console.error("REGISTER ERROR:", err.response?.data || err);
-      alert(err.response?.data?.message || "Error");
+      console.error(
+        "REGISTER ERROR:",
+        err.response?.data || err.message
+      );
+
+      alert(
+        err.response?.data?.message ||
+          "Registration Failed"
+      );
     }
   };
 
   return (
-    <div className="flex items-center justify-center h-screen bg-gradient-to-br from-purple-100 to-blue-100">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-100 to-blue-100">
       <form
         onSubmit={handleSubmit}
         className="bg-white p-8 rounded-2xl shadow-lg w-96"
       >
-        <h2 className="text-2xl font-bold mb-6 text-center">
+        <h2 className="text-3xl font-bold mb-6 text-center text-black">
           Create Account
         </h2>
 
+        {/* Username */}
         <input
+          type="text"
           name="username"
           placeholder="Full Name"
+          value={form.username}
           onChange={handleChange}
-          className="w-full p-3 mb-3 border rounded-lg"
+          className="w-full p-3 mb-3 border border-gray-300 rounded-lg bg-white text-black placeholder-gray-500 outline-none"
         />
 
+        {/* Email */}
         <input
+          type="email"
           name="email"
           placeholder="Email"
+          value={form.email}
           onChange={handleChange}
-          className="w-full p-3 mb-3 border rounded-lg"
+          className="w-full p-3 mb-3 border border-gray-300 rounded-lg bg-white text-black placeholder-gray-500 outline-none"
         />
 
+        {/* Password */}
         <input
-          name="password"
           type="password"
+          name="password"
           placeholder="Password"
+          value={form.password}
           onChange={handleChange}
-          className="w-full p-3 mb-3 border rounded-lg"
+          className="w-full p-3 mb-3 border border-gray-300 rounded-lg bg-white text-black placeholder-gray-500 outline-none"
         />
 
-        
+        {/* Location Autocomplete */}
         <LocationAutocomplete
           value={form.location}
           onSelect={(loc, coords) => {
-            setForm({ ...form, location: loc });
-            setCoordinates(coords); 
+            setForm({
+              ...form,
+              location: loc,
+            });
+
+            setCoordinates(coords);
           }}
         />
 
-        
+        {/* Use GPS */}
         <button
           type="button"
           onClick={handleUseLocation}
-          className="mt-2 bg-blue-500 text-white px-3 py-1 rounded"
+          className="mt-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg w-full"
         >
           Use My Location 📍
         </button>
 
-        <button className="w-full py-3 mt-4 rounded-lg bg-gradient-to-r from-green-400 to-blue-500 text-white">
+        {/* Register Button */}
+        <button
+          type="submit"
+          className="w-full py-3 mt-4 rounded-lg bg-gradient-to-r from-green-400 to-blue-500 text-white font-semibold hover:opacity-90"
+        >
           Register
         </button>
 
-        <p className="text-sm mt-4 text-center">
+        <p className="text-sm mt-4 text-center text-gray-700">
           Already have an account?{" "}
-          <Link to="/login" className="text-blue-600">
+          <Link to="/login" className="text-blue-600 font-medium">
             Login
           </Link>
         </p>
