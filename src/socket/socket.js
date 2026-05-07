@@ -5,7 +5,7 @@ let socket = null;
 
 export const connectSocket = (user) => {
   if (!socket) {
-    socket = io("http://localhost:8000", {
+    socket = io("https://skill-sharing-final.onrender.com", {
       withCredentials: true,
     });
 

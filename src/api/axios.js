@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Backend API base URL
 const API = axios.create({
-  baseURL: "http://localhost:8000/api",
+  baseURL: "https://skill-sharing-final.onrender.com",
   withCredentials: true,
 });
 
